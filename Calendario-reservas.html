@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendario Reservas — Cabañas Mariscadero</title>
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
+    script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+    img-src 'self' data: https:;
+    connect-src 'self' https://mariscadero-api.franciscopersonalolate.workers.dev;
+  " />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ocean: #1a6b8a; --ocean-lt: #2a9bc4; --sand: #fdf8f0;
+      --gold: #f0c070; --night: #0d2035; --gris: #5a6a7a;
+      --borde: #e2eaf0; --blanco: #ffffff; --rojo: #e53e3e;
+      --rojo-lt: #fff5f5; --verde: #38a169; --verde-lt: #f0fff4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--sand); color: var(--night); }
+
+    /* LOGIN */
+    .login-wrap {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--night), var(--ocean));
+    }
+    .login-box {
+      background: var(--blanco); border-radius: 20px; padding: 2.5rem;
+      width: 100%; max-width: 380px; box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center;
+    }
+    .login-logo {
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, var(--ocean), var(--ocean-lt));
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem; font-size: 1.6rem; color: var(--blanco);
+    }
+    .login-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: .3rem; }
+    .login-box p  { color: var(--gris); font-size: .88rem; margin-bottom: 1.5rem; }
+    .login-input {
+      width: 100%; padding: .75rem 1rem; border: 2px solid var(--borde); border-radius: 10px;
+      font-size: .95rem; font-family: inherit; margin-bottom: 1rem; outline: none; transition: border-color .2s;
+    }
+    .login-input:focus { border-color: var(--ocean); }
+    .login-btn {
+      width: 100%; padding: .8rem;
+      background: linear-gradient(135deg, var(--ocean), var(--ocean-lt));
+      color: var(--blanco); border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+    }
+    .login-btn:hover { opacity: .9; }
+    .login-error { color: var(--rojo); font-size: .82rem; margin-top: .5rem; display: none; }
+
+    /* NAV */
+    .panel-nav {
+      background: var(--night); padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .panel-brand { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+    .nav-links { display: flex; align-items: center; gap: 1rem; }
+    .nav-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .logout-btn {
+      background: rgba(255,255,255,.1); color: var(--blanco);
+      border: 1px solid rgba(255,255,255,.2); border-radius: 50px;
+      padding: .35rem 1rem; font-size: .82rem; cursor: pointer;
+    }
+
+    /* PANEL */
+    .panel-wrap { display: none; }
+    .panel-body { padding: 1.5rem 2rem; }
+    .panel-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: .3rem; }
+    .panel-sub   { color: var(--gris); font-size: .9rem; margin-bottom: 1.5rem; }
+
+    /* CONTROLES */
+    .controles { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-bottom: 1.5rem; }
+    .controles select, .controles button {
+      padding: .5rem 1rem; border-radius: 8px; font-family: inherit;
+      font-size: .9rem; cursor: pointer; border: 2px solid var(--borde); background: var(--blanco);
+    }
+    .btn-actualizar { background: var(--ocean)!important; color: #fff!important; border-color: var(--ocean)!important; font-weight: 600; }
+    .btn-hoy        { background: var(--gold)!important; color: var(--night)!important; border-color: var(--gold)!important; font-weight: 600; }
+
+    /* LEYENDA */
+    .leyenda { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; align-items: center; }
+    .leyenda-item { display: flex; align-items: center; gap: .4rem; font-size: .82rem; }
+    .leyenda-box { width: 22px; height: 22px; border-radius: 4px; border: 1px solid #ddd; }
+    .box-libre { background: var(--verde-lt); border-color: #c6f6d5; }
+    .box-ocup  { background: #fed7d7; border-color: #fc8181; }
+    .box-hoy   { background: #ebf8ff; border: 2px solid var(--ocean); }
+
+    /* TABLA */
+    .cal-wrapper { overflow-x: auto; border-radius: 16px; border: 1px solid var(--borde); background: var(--blanco); box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+
+    table.cal { border-collapse: collapse; width: 100%; }
+
+    /* Cabecera fija */
+    table.cal thead th {
+      background: var(--night); color: var(--gold); font-weight: 700;
+      text-align: center; padding: .7rem .5rem; white-space: nowrap;
+      position: sticky; top: 0; z-index: 10; min-width: 130px;
+    }
+    table.cal thead th:first-child { min-width: 90px; text-align: left; padding-left: 1rem; }
+
+    /* Fila mes */
+    tr.mes-header td {
+      background: linear-gradient(90deg, var(--ocean), var(--ocean-lt));
+      color: #fff; font-weight: 700; font-size: .8rem;
+      padding: .5rem 1rem; text-transform: uppercase; letter-spacing: .05em;
+    }
+
+    /* Filas días */
+    tr.dia-row td {
+      border-bottom: 1px solid #f0f4f7;
+      vertical-align: top; padding: 3px;
+    }
+    tr.dia-row td:first-child {
+      text-align: left; padding-left: 1rem; padding-top: 6px;
+      white-space: nowrap; color: var(--gris); font-size: .75rem;
+      vertical-align: middle; min-width: 90px;
+    }
+    tr.dia-row:hover td { background: #f7fbff; }
+    tr.dia-hoy td { background: #ebf8ff!important; }
+    tr.dia-hoy td:first-child { color: var(--ocean)!important; font-weight: 700; }
+
+    /* Celda vacía */
+    .celda-libre {
+      height: 32px; border-radius: 6px;
+      background: var(--verde-lt); border: 1px solid #c6f6d5;
+    }
+
+    /* Celda con reserva — GRANDE con info */
+    .celda-ocup {
+      border-radius: 6px;
+      background: #fed7d7; border: 1px solid #fc8181;
+      padding: 4px 6px; min-height: 32px;
+      font-size: .68rem; line-height: 1.3;
+      color: var(--night);
+    }
+    .celda-ocup.primera {
+      border-top-left-radius: 10px; border-top-right-radius: 10px;
+      background: #fc8181; color: #fff;
+      font-weight: 700; padding-top: 5px;
+    }
+    .celda-ocup .c-nombre { font-weight: 700; font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .celda-ocup .c-hora   { font-size: .65rem; color: #744210; font-weight: 600; margin-top: 1px; }
+    .celda-ocup .c-personas { color: #744210; font-size: .64rem; }
+    .celda-ocup .c-pagos { display: flex; flex-direction: column; gap: 1px; margin-top: 2px; }
+    .celda-ocup .c-pago { font-size: .62rem; color: #553c1a; }
+    .celda-ocup.primera .c-hora,
+    .celda-ocup.primera .c-personas,
+    .celda-ocup.primera .c-pago { color: rgba(255,255,255,.85); }
+    .c-hora-salida {
+      font-size: .65rem; font-weight: 700; color: var(--rojo);
+      text-align: center; padding: 4px 2px;
+    }
+
+    /* Fila resumen mensual */
+    tr.mes-resumen td {
+      background: linear-gradient(90deg, #1a3a5c, #1a5c3a);
+      padding: .6rem 1rem;
+    }
+    .mes-resumen-inner {
+      display: flex; flex-wrap: wrap; align-items: center; gap: .8rem;
+    }
+    .mes-resumen-label {
+      color: var(--gold); font-weight: 700; font-size: .8rem;
+      text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+    }
+    .mes-resumen-items { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .mes-res-chip {
+      background: rgba(255,255,255,.12); border-radius: 20px;
+      padding: 3px 10px; font-size: .76rem; color: #fff; font-weight: 600; white-space: nowrap;
+    }
+    .mes-res-chip.total {
+      background: var(--gold); color: var(--night); font-weight: 700;
+    }
+    .mes-res-chip.cero { opacity: .45; }
+
+    /* Botón comprobante en celda */
+    .btn-comprobante {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: rgba(255,255,255,.25); border: none; border-radius: 4px;
+      color: #fff; font-size: .6rem; cursor: pointer; padding: 2px 5px; margin-top: 3px;
+    }
+    .btn-comprobante:hover { background: rgba(255,255,255,.4); }
+
+    /* Hoy */
+    .celda-libre.hoy, .celda-ocup.hoy { outline: 2px solid var(--ocean); }
+
+    /* LOADING */
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(13,32,53,.7);
+      display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .loading-spinner {
+      width: 50px; height: 50px; border: 4px solid rgba(255,255,255,.2);
+      border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box { background: #fff5f5; border: 1px solid #fed7d7; color: var(--rojo); padding: 1rem 1.5rem; border-radius: 10px; margin-bottom: 1rem; font-size: .88rem; }
+
+    @media(max-width:700px) {
+      .panel-body { padding: 1rem; }
+      table.cal thead th { min-width: 90px; font-size: .72rem; }
+      .celda-ocup .c-nombre { max-width: 70px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo"><i class="bi bi-calendar2-week-fill"></i></div>
+    <h2>Calendario de Reservas</h2>
+    <p>Cabañas Mariscadero — Panel administrador</p>
+    <input type="password" class="login-input" id="loginPass" placeholder="Contraseña"
+      onkeydown="if(event.key==='Enter') doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <p class="login-error" id="loginError">⚠️ Contraseña incorrecta</p>
+    <p style="font-size:.75rem;color:#aaa;margin-top:1.5rem;">🔒 Solo para administradores</p>
+  </div>
+</div>
+
+<div class="panel-wrap" id="panelWrap">
+  <nav class="panel-nav">
+    <div class="panel-brand">🏠 Cabañas Mariscadero</div>
+    <div class="nav-links">
+      <a href="index.html" target="_blank"><i class="bi bi-house-fill"></i> Página web</a>
+      <a href="Disponibilidad.html"><i class="bi bi-grid-fill"></i> Panel admin</a>
+      <button class="logout-btn" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Salir</button>
+    </div>
+  </nav>
+
+  <div class="panel-body">
+    <h1 class="panel-title"><i class="bi bi-calendar3" style="color:var(--ocean)"></i> Calendario anual de reservas</h1>
+    <p class="panel-sub">Vista anual completa. Cada celda roja muestra nombre, personas y pagos de la reserva.</p>
+
+    <div id="errorBox" class="error-box" style="display:none"></div>
+
+    <div class="controles">
+      <label style="font-weight:600;font-size:.9rem;">Año:</label>
+      <select id="selAnio"></select>
+      <label style="font-weight:600;font-size:.9rem;">Mes:</label>
+      <select id="selMes">
+        <option value="0">Todo el año</option>
+        <option value="1">Enero</option><option value="2">Febrero</option>
+        <option value="3">Marzo</option><option value="4">Abril</option>
+        <option value="5">Mayo</option><option value="6">Junio</option>
+        <option value="7">Julio</option><option value="8">Agosto</option>
+        <option value="9">Septiembre</option><option value="10">Octubre</option>
+        <option value="11">Noviembre</option><option value="12">Diciembre</option>
+      </select>
+      <button class="btn-actualizar" onclick="recargar()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      <button class="btn-hoy" onclick="irAHoy()"><i class="bi bi-calendar-check"></i> Ir a hoy</button>
+    </div>
+
+    <div class="leyenda">
+      <div class="leyenda-item"><div class="leyenda-box box-ocup"></div><span>Reservado (con info visible)</span></div>
+      <div class="leyenda-item"><div class="leyenda-box box-libre"></div><span>Libre</span></div>
+      <div class="leyenda-item"><div class="leyenda-box box-hoy"></div><span>Hoy</span></div>
+    </div>
+
+    <div class="cal-wrapper" id="calWrapper">
+      <p style="padding:2rem;color:var(--gris)">Cargando...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var WORKER_URL = 'https://mariscadero-api.franciscopersonalolate.workers.dev';
+  var API_URL    = WORKER_URL + '/reservas';
+
+  var MESES  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var DIAS_S = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var reservasData = {};
+
+  function toISO(d) {
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + dd;
+  }
+
+  function getHoy() { return toISO(new Date()); }
+
+  function showLoading(v) { document.getElementById('loadingOverlay').style.display = v ? 'flex' : 'none'; }
+
+  function showError(msg) {
+    var el = document.getElementById('errorBox');
+    el.style.display = msg ? 'block' : 'none';
+    el.textContent = msg || '';
+  }
+
+  function doLogin() {
+    var pass = document.getElementById('loginPass').value;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', WORKER_URL + '/login', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      try {
+        var data = JSON.parse(xhr.responseText);
+        if (data.ok) {
+          document.getElementById('loginWrap').style.display = 'none';
+          document.getElementById('panelWrap').style.display = 'block';
+          iniciarPanel();
+        } else {
+          document.getElementById('loginError').style.display = 'block';
+        }
+      } catch(e) {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    };
+    xhr.send(JSON.stringify({ password: pass }));
+  }
+
+  function doLogout() {
+    document.getElementById('loginWrap').style.display = 'flex';
+    document.getElementById('panelWrap').style.display = 'none';
+    document.getElementById('loginPass').value = '';
+  }
+
+  function iniciarPanel() {
+    var selAnio = document.getElementById('selAnio');
+    var anioActual = new Date().getFullYear();
+    for (var a = anioActual - 1; a <= anioActual + 2; a++) {
+      var opt = document.createElement('option');
+      opt.value = a; opt.textContent = a;
+      if (a === anioActual) opt.selected = true;
+      selAnio.appendChild(opt);
+    }
+    document.getElementById('selMes').value = new Date().getMonth() + 1;
+    cargarYRenderizar();
+  }
+
+  function cargarYRenderizar() {
+    showLoading(true); showError('');
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', API_URL, true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      if (xhr.status === 200) {
+        try { reservasData = JSON.parse(xhr.responseText) || {}; }
+        catch(e) { reservasData = {}; showError('⚠️ Error al leer datos.'); }
+      } else {
+        reservasData = {};
+        showError('⚠️ No se pudo conectar (' + xhr.status + '). Revisa tu conexión.');
+      }
+      renderCalendario();
+      showLoading(false);
+    };
+    xhr.onerror = function() {
+      reservasData = {}; showError('⚠️ Error de red.');
+      renderCalendario(); showLoading(false);
+    };
+    xhr.send();
+  }
+
+  function recargar() { cargarYRenderizar(); }
+
+  function irAHoy() {
+    document.getElementById('selAnio').value = new Date().getFullYear();
+    document.getElementById('selMes').value  = new Date().getMonth() + 1;
+    cargarYRenderizar();
+    setTimeout(function() {
+      var el = document.getElementById('fila-' + getHoy());
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 700);
+  }
+
+  function buildReservasMap() {
+    var map = {};
+    for (var cab = 1; cab <= 7; cab++) {
+      var lista = reservasData[cab] || reservasData[String(cab)] || [];
+      for (var i = 0; i < lista.length; i++) {
+        var r = lista[i];
+        var cur = new Date(r.llegada + 'T12:00:00');
+        var fin = new Date(r.salida  + 'T12:00:00');
+        var ultimo = new Date(fin); ultimo.setDate(ultimo.getDate() - 1);
+        var ultimoStr = toISO(ultimo);
+        var primera = true;
+        while (cur < fin) {
+          var key = toISO(cur) + '|' + cab;
+          map[key] = { r: r, primera: primera, ultima: toISO(cur) === ultimoStr };
+          primera = false;
+          cur.setDate(cur.getDate() + 1);
+        }
+      }
+    }
+    return map;
+  }
+
+  function fmt(f) {
+    if (!f) return '';
+    var p = f.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  function fmtHora(h) {
+    if (!h) return '';
+    var parts = h.split(':');
+    var hora = parseInt(parts[0], 10);
+    var min  = parts[1];
+    var ampm = hora >= 12 ? 'PM' : 'AM';
+    hora = hora % 12 || 12;
+    return hora + ':' + min + ' ' + ampm;
+  }
+
+  function fmtPeso(n) {
+    if (!n) return '';
+    return '$' + Number(n).toLocaleString('es-CL');
+  }
+
+  function diasEnMes(anio, mes) { return new Date(anio, mes, 0).getDate(); }
+
+  function verComprobante(id) {
+    var found = null;
+    for (var cab in reservasData) {
+      var lista = reservasData[cab] || [];
+      for (var i = 0; i < lista.length; i++) {
+        if (lista[i].id == id) { found = lista[i]; break; }
+      }
+      if (found) break;
+    }
+    if (!found || !found.comprobante) { alert('No hay comprobante disponible'); return; }
+    var modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:10000;padding:1rem;';
+    modal.innerHTML =
+      '<button onclick="this.parentElement.remove()" style="position:absolute;top:1rem;right:1rem;background:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:1.5rem;cursor:pointer">✕</button>' +
+      '<div style="background:#fff;border-radius:12px;overflow:hidden;max-width:90vw;max-height:90vh;">' +
+        '<div style="background:linear-gradient(135deg,var(--ocean),var(--ocean-lt));color:#fff;padding:1rem 1.5rem;">' +
+          '<h3 style="margin:0;font-size:1.1rem">📎 Comprobante</h3>' +
+          '<p style="margin:.3rem 0 0 0;font-size:.85rem;opacity:.9">' + found.nombre + ' · ' + fmt(found.llegada) + ' → ' + fmt(found.salida) + '</p>' +
+        '</div>' +
+        '<div style="padding:1rem;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">' +
+          '<img src="' + found.comprobante + '" style="max-width:100%;max-height:65vh;border-radius:8px;" />' +
+        '</div>' +
+      '</div>';
+    modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+    document.body.appendChild(modal);
+  }
+
+  function calcularResumenMes(anio, mes) {
+    var totDep = 0, totAbo = 0, totEfe = 0;
+    var mm = String(mes).padStart(2,'0');
+    var prefijo = anio + '-' + mm + '-';
+    for (var cab in reservasData) {
+      var lista = reservasData[cab] || [];
+      for (var i = 0; i < lista.length; i++) {
+        var r = lista[i];
+        if (r.llegada && r.llegada.indexOf(prefijo) === 0) {
+          totDep += Number(r.deposito) || 0;
+          totAbo += Number(r.abono)    || 0;
+          totEfe += Number(r.efectivo) || 0;
+        }
+      }
+    }
+    return { dep: totDep, abo: totAbo, efe: totEfe, total: totDep + totAbo + totEfe };
+  }
+
+  function renderCalendario() {
+    var anio   = parseInt(document.getElementById('selAnio').value, 10);
+    var mesSel = parseInt(document.getElementById('selMes').value, 10);
+    var hoyStr = getHoy();
+    var resMap = buildReservasMap();
+
+    var mesInicio = mesSel === 0 ? 1  : mesSel;
+    var mesFin    = mesSel === 0 ? 12 : mesSel;
+
+    var html = '<table class="cal"><thead><tr><th>Fecha</th>';
+    for (var c = 1; c <= 7; c++) html += '<th>🏠 Cabaña N°' + c + '</th>';
+    html += '</tr></thead><tbody>';
+
+    for (var mes = mesInicio; mes <= mesFin; mes++) {
+      html += '<tr class="mes-header"><td colspan="8">📅 ' + MESES[mes-1] + ' ' + anio + '</td></tr>';
+      var ndias = diasEnMes(anio, mes);
+
+      for (var d = 1; d <= ndias; d++) {
+        var mm    = String(mes).padStart(2,'0');
+        var dd    = String(d).padStart(2,'0');
+        var fecha = anio + '-' + mm + '-' + dd;
+        var diasem = new Date(fecha + 'T12:00:00').getDay();
+        var esHoy  = fecha === hoyStr;
+        var esFinde = diasem === 0 || diasem === 6;
+
+        html += '<tr class="dia-row' + (esHoy ? ' dia-hoy' : '') + '" id="fila-' + fecha + '">';
+        html += '<td style="' + (esFinde ? 'color:#d97706;font-weight:600' : '') + '">';
+        html += DIAS_S[diasem] + ' ' + d;
+        if (esHoy) html += ' <span style="font-size:.58rem;background:var(--ocean);color:#fff;border-radius:4px;padding:1px 4px">HOY</span>';
+        html += '</td>';
+
+        for (var cab = 1; cab <= 7; cab++) {
+          var key  = fecha + '|' + cab;
+          var info = resMap[key];
+
+          if (!info) {
+            html += '<td><div class="celda-libre' + (esHoy ? ' hoy' : '') + '"></div></td>';
+          } else {
+            var r = info.r;
+            var clases = 'celda-ocup' + (info.primera ? ' primera' : '') + (esHoy ? ' hoy' : '');
+            html += '<td><div class="' + clases + '">';
+            if (info.primera) {
+              html += '<div class="c-nombre">👤 ' + r.nombre + '</div>';
+              if (r.horaLlegada) html += '<div class="c-hora">🕐 Entrada: ' + fmtHora(r.horaLlegada) + '</div>';
+              html += '<div class="c-personas">👥 ' + (r.personas || '—') + ' personas</div>';
+              html += '<div class="c-pagos">';
+              if (r.deposito) html += '<div class="c-pago">🏦 Dep: ' + fmtPeso(r.deposito) + '</div>';
+              if (r.abono)    html += '<div class="c-pago">💵 Abono: ' + fmtPeso(r.abono) + '</div>';
+              if (r.efectivo) html += '<div class="c-pago">💰 Efect: ' + fmtPeso(r.efectivo) + '</div>';
+              html += '</div>';
+              if (r.comprobante) {
+                html += '<button class="btn-comprobante" onclick="verComprobante(' + r.id + ')">📎 Ver foto</button>';
+              }
+            } else if (info.ultima) {
+              if (r.horaSalida) html += '<div class="c-hora-salida">🕛 Salida: ' + fmtHora(r.horaSalida) + '</div>';
+            }
+            html += '</div></td>';
+          }
+        }
+        html += '</tr>';
+      }
+
+      var res = calcularResumenMes(anio, mes);
+      html += '<tr class="mes-resumen"><td colspan="8">';
+      html += '<div class="mes-resumen-inner">';
+      html += '<span class="mes-resumen-label">💰 Ingresos ' + MESES[mes-1] + ':</span>';
+      html += '<div class="mes-resumen-items">';
+      html += '<span class="mes-res-chip' + (res.dep === 0 ? ' cero' : '') + '">🏦 Depósitos: ' + fmtPeso(res.dep || 0) + '</span>';
+      html += '<span class="mes-res-chip' + (res.abo === 0 ? ' cero' : '') + '">💵 Abonos: '    + fmtPeso(res.abo || 0) + '</span>';
+      html += '<span class="mes-res-chip' + (res.efe === 0 ? ' cero' : '') + '">💰 Efectivo: '  + fmtPeso(res.efe || 0) + '</span>';
+      html += '<span class="mes-res-chip total">✅ Total: ' + fmtPeso(res.total) + '</span>';
+      html += '</div></div></td></tr>';
+    }
+
+    html += '</tbody></table>';
+    document.getElementById('calWrapper').innerHTML = html;
+  }
+</script>
+</body>
+</html>

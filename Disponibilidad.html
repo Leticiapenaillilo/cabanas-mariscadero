@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin — Cabañas Mariscadero</title>
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
+    script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+    img-src 'self' data: https:;
+    connect-src 'self' https://mariscadero-api.franciscopersonalolate.workers.dev;
+  " />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --ocean: #1a6b8a;
+      --ocean-lt: #2a9bc4;
+      --sand: #fdf8f0;
+      --gold: #f0c070;
+      --night: #0d2035;
+      --gris: #5a6a7a;
+      --borde: #e2eaf0;
+      --blanco: #ffffff;
+      --rojo: #e53e3e;
+      --verde: #38a169;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--sand);
+      color: var(--night);
+    }
+
+    /* LOGIN */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--night), var(--ocean));
+    }
+
+    .login-box {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--ocean), var(--ocean-lt));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+      font-size: 1.6rem;
+      color: var(--blanco);
+    }
+
+    .login-box h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .login-box p {
+      color: var(--gris);
+      font-size: 0.88rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--borde);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-input:focus {
+      border-color: var(--ocean);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, var(--ocean), var(--ocean-lt));
+      color: var(--blanco);
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .login-btn:hover {
+      opacity: 0.9;
+    }
+
+    .login-error {
+      color: var(--rojo);
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    /* PANEL */
+    .panel-wrap {
+      display: none;
+    }
+
+    .panel-nav {
+      background: var(--night);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-brand {
+      color: var(--gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+    }
+
+    .panel-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .panel-nav-right a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .panel-nav-right a:hover {
+      color: var(--gold);
+    }
+
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--blanco);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 0.35rem 1rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .panel-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .panel-sub {
+      color: var(--gris);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    /* RESUMEN */
+    .resumen-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .resumen-card {
+      background: var(--blanco);
+      border-radius: 14px;
+      padding: 1.2rem 1.5rem;
+      border: 1px solid var(--borde);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .resumen-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .resumen-icon.verde {
+      background: #f0fff4;
+      color: var(--verde);
+    }
+
+    .resumen-icon.rojo {
+      background: #fff5f5;
+      color: var(--rojo);
+    }
+
+    .resumen-icon.gold {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .resumen-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .resumen-label {
+      font-size: 0.82rem;
+      color: var(--gris);
+      margin-top: 2px;
+    }
+
+    /* FORM */
+    .bloqueo-form {
+      background: var(--blanco);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid var(--borde);
+      margin-bottom: 2rem;
+    }
+
+    .bloqueo-form h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gris);
+      margin-bottom: 5px;
+    }
+
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 2px solid var(--borde);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      background: var(--blanco);
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+      border-color: var(--ocean);
+    }
+
+    .btn-bloquear {
+      padding: 0.65rem 1.5rem;
+      background: var(--rojo);
+      color: var(--blanco);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .btn-bloquear:hover {
+      opacity: 0.85;
+    }
+
+    /* GRID CABAÑAS */
+    .cabanas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .cabana-card {
+      background: var(--blanco);
+      border-radius: 14px;
+      border: 2px solid var(--borde);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .cabana-card:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .cabana-card.ocupada {
+      border-color: #fed7d7;
+    }
+
+    .cabana-header {
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cabana-nombre {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+
+    .badge-libre {
+      background: #f0fff4;
+      color: var(--verde);
+    }
+
+    .badge-ocupada {
+      background: #fff5f5;
+      color: var(--rojo);
+    }
+
+    .cabana-reservas {
+      padding: 0 1.2rem 1rem;
+    }
+
+    .reserva-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: #fff5f5;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+    }
+
+    .reserva-fechas {
+      color: var(--rojo);
+      font-weight: 500;
+    }
+
+    .reserva-nota {
+      color: var(--gris);
+      font-size: 0.78rem;
+    }
+
+    .btn-eliminar {
+      background: none;
+      border: none;
+      color: #fc8181;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-eliminar:hover {
+      background: #fed7d7;
+    }
+
+    .sin-reservas {
+      color: var(--gris);
+      font-size: 0.82rem;
+      padding: 0.3rem 0;
+    }
+
+    .cabana-footer {
+      padding: 0.75rem 1.2rem;
+      border-top: 1px solid var(--borde);
+    }
+
+    .btn-liberar {
+      width: 100%;
+      padding: 0.5rem;
+      background: #f0fff4;
+      color: var(--verde);
+      border: 1px solid #c6f6d5;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-liberar:hover {
+      background: var(--verde);
+      color: var(--blanco);
+    }
+
+    /* LOADING */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 32, 53, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #f0c070;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .alert-info {
+      background: #e8f4fd;
+      border: 1px solid #bee3f8;
+      color: #2b6cb0;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+    }
+
+    /* COMPROBANTE UPLOAD */
+    .foto-upload-box {
+      border: 2px dashed var(--borde);
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #fafbfc;
+    }
+
+    .foto-upload-box:hover {
+      border-color: var(--ocean);
+      background: #f0f8fb;
+    }
+
+    .foto-upload-box.has-file {
+      border-color: var(--verde);
+      background: #f0fff4;
+    }
+
+    .foto-preview-container {
+      margin-top: 1rem;
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .foto-preview-img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 10px;
+      border: 2px solid var(--borde);
+      object-fit: cover;
+    }
+
+    .foto-remove-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: var(--rojo);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s;
+    }
+
+    .foto-remove-btn:hover {
+      transform: scale(1.1);
+      background: #c53030;
+    }
+
+    .foto-status {
+      font-size: 0.8rem;
+      color: var(--gris);
+      margin-top: 0.5rem;
+    }
+
+    @media(max-width:600px) {
+      .resumen-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+  
+  <div class="login-wrap" id="loginWrap">
+    <div class="login-box">
+      <div class="login-logo"><i class="bi bi-shield-lock-fill"></i></div>
+      <h2>Panel Admin</h2>
+      <p>Cabañas Mariscadero — Gestión de reservas</p>
+      <input type="password" class="login-input" id="loginPass" placeholder="Contraseña"
+        onkeydown="if(event.key==='Enter') doLogin()" />
+      <button class="login-btn" onclick="doLogin()">Ingresar al panel</button>
+      <p class="login-error" id="loginError">⚠️ Contraseña incorrecta</p>
+      <p style="font-size:0.75rem;color:#aaa;margin-top:1.5rem;">🔒 Acceso solo para administradores</p>
+    </div>
+  </div>
+
+  
+  <div class="panel-wrap" id="panelWrap">
+    <nav class="panel-nav">
+      <div class="panel-brand">🏠 Cabañas Mariscadero</div>
+      <div class="panel-nav-right">
+        <a href="index.html" target="_blank"><i class="bi bi-house-fill"></i> Página web</a>
+        <a href="Calendario-reservas.html" target="_blank"><i class="bi bi-calendar3"></i> Calendario anual</a>
+        <button class="logout-btn" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Salir</button>
+      </div>
+    </nav>
+    <div class="panel-body">
+      <h1 class="panel-title">Panel de disponibilidad</h1>
+      <p class="panel-sub">Gestiona las reservas de las 7 cabañas. Los cambios son visibles para todos los clientes en
+        tiempo real.</p>
+
+      <div class="alert-info">
+        <i class="bi bi-cloud-check-fill"></i> <strong>Datos en la nube:</strong> Las reservas se guardan en un servidor
+        externo y son visibles para todos los clientes en tiempo real desde cualquier dispositivo.
+      </div>
+
+      <div class="resumen-grid">
+        <div class="resumen-card">
+          <div class="resumen-icon verde"><i class="bi bi-house-check-fill"></i></div>
+          <div>
+            <div class="resumen-num" id="countLibres">—</div>
+            <div class="resumen-label">Cabañas disponibles</div>
+          </div>
+        </div>
+        <div class="resumen-card">
+          <div class="resumen-icon rojo"><i class="bi bi-house-x-fill"></i></div>
+          <div>
+            <div class="resumen-num" id="countOcupadas">—</div>
+            <div class="resumen-label">Cabañas ocupadas</div>
+          </div>
+        </div>
+        <div class="resumen-card">
+          <div class="resumen-icon gold"><i class="bi bi-calendar-week"></i></div>
+          <div>
+            <div class="resumen-num" id="countReservas">—</div>
+            <div class="resumen-label">Reservas activas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloqueo-form">
+        <h3><i class="bi bi-calendar-plus" style="color:var(--rojo)"></i> Agregar reserva</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cabaña</label>
+            <select id="fCabana">
+              <option value="1">Cabaña N°1</option>
+              <option value="2">Cabaña N°2</option>
+              <option value="3">Cabaña N°3</option>
+              <option value="4">Cabaña N°4</option>
+              <option value="5">Cabaña N°5</option>
+              <option value="6">Cabaña N°6</option>
+              <option value="7">Cabaña N°7</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fecha llegada</label>
+            <input type="date" id="fLlegada" />
+          </div>
+          <div class="form-group">
+            <label>Hora llegada</label>
+            <input type="time" id="fHoraLlegada" value="14:00" />
+          </div>
+          <div class="form-group">
+            <label>Fecha salida</label>
+            <input type="date" id="fSalida" />
+          </div>
+          <div class="form-group">
+            <label>Hora salida</label>
+            <input type="time" id="fHoraSalida" value="12:00" />
+          </div>
+          <div class="form-group">
+            <label>Nombre cliente</label>
+            <input type="text" id="fNombre" placeholder="Ej: Francisco Olate" maxlength="50" />
+          </div>
+          <div class="form-group">
+            <label>N° personas</label>
+            <select id="fPersonas">
+              <option value="1">1 persona</option>
+              <option value="2">2 personas</option>
+              <option value="3">3 personas</option>
+              <option value="4">4 personas</option>
+              <option value="5">5 personas</option>
+              <option value="6">6 personas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Depósito ($)</label>
+            <input type="number" id="fDeposito" placeholder="Ej: 50000" min="0" step="1000" />
+          </div>
+          <div class="form-group">
+            <label>Abono ($)</label>
+            <input type="number" id="fAbono" placeholder="Ej: 10000" min="0" step="1000" />
+          </div>
+          <div class="form-group">
+            <label>Efectivo ($)</label>
+            <input type="number" id="fEfectivo" placeholder="Ej: 5000" min="0" step="1000" />
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>📸 Foto comprobante <span style="color:var(--gris);font-weight:400;font-size:0.8rem">(opcional)</span></label>
+            <div class="foto-upload-box" id="fotoBox" onclick="document.getElementById('fFoto').click()">
+              <i class="bi bi-cloud-upload" style="font-size:2.5rem;color:var(--ocean);opacity:0.7"></i>
+              <p style="margin:0.6rem 0 0.2rem;font-size:0.9rem;color:var(--gris);font-weight:500">Haz clic para subir foto o arrastra aquí</p>
+              <p style="font-size:0.75rem;color:#aaa">JPG, PNG — máx 5MB — se comprime automáticamente</p>
+            </div>
+            <input type="file" id="fFoto" accept="image/*" style="display:none" onchange="previsualizarFoto(event)" />
+            <div id="fotoPreview" style="display:none;">
+              <div class="foto-preview-container">
+                <img id="fotoImg" src="" class="foto-preview-img" alt="Vista previa" />
+                <button type="button" class="foto-remove-btn" onclick="quitarFoto()" title="Quitar foto">✕</button>
+              </div>
+              <p id="fotoStatus" class="foto-status"></p>
+            </div>
+          </div>
+          <div class="form-group">
+            <button class="btn-bloquear" onclick="bloquearCabana()">
+              <i class="bi bi-lock-fill"></i> Guardar reserva
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cabanas-grid" id="cabanasGrid">
+        <p style="color:var(--gris);padding:1rem;">Cargando reservas...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WORKER_URL = 'https://mariscadero-api.franciscopersonalolate.workers.dev';
+    const API_URL = `${WORKER_URL}/reservas`;
+
+    let comprobanteBase64 = null;
+    let sessionPass = null;
+
+    async function doLogin() {
+      const pass = document.getElementById('loginPass').value;
+      const btn = document.querySelector('.login-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch(`${WORKER_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pass })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          sessionPass = pass;
+          document.getElementById('loginWrap').style.display = 'none';
+          document.getElementById('panelWrap').style.display = 'block';
+          cargarReservas();
+        } else {
+          document.getElementById('loginError').style.display = 'block';
+        }
+      } catch (e) {
+        alert('Error de conexión al verificar la contraseña.');
+        console.error(e);
+      }
+      if (btn) btn.disabled = false;
+    }
+
+    function doLogout() {
+      sessionPass = null;
+      document.getElementById('loginWrap').style.display = 'flex';
+      document.getElementById('panelWrap').style.display = 'none';
+      document.getElementById('loginPass').value = '';
+    }
+
+    function showLoading(v) {
+      document.getElementById('loadingOverlay').style.display = v ? 'flex' : 'none';
+    }
+
+    async function cargarReservas() {
+      showLoading(true);
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        renderPanel(data || {});
+      } catch (e) {
+        alert('Error al cargar reservas. Verifica tu conexión.');
+        console.error(e);
+      }
+      showLoading(false);
+    }
+
+    async function guardarReservas(data) {
+      showLoading(true);
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionPass}`
+          },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+          alert('⚠️ Sesión inválida. Por favor inicia sesión de nuevo.');
+          doLogout();
+          return;
+        }
+        localStorage.setItem('reservas_publicas', JSON.stringify(data));
+        localStorage.setItem('reservas_cache_ts', Date.now().toString());
+      } catch (e) {
+        alert('Error al guardar. Intenta de nuevo.');
+        console.error(e);
+      }
+      showLoading(false);
+    }
+
+    function previsualizarFoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('⚠️ La imagen es muy grande. El tamaño máximo es 5MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        comprimirImagen(e.target.result, function(b64) {
+          comprobanteBase64 = b64;
+          
+          document.getElementById('fotoImg').src = b64;
+          document.getElementById('fotoPreview').style.display = 'block';
+          document.getElementById('fotoBox').classList.add('has-file');
+          document.getElementById('fotoBox').innerHTML = `
+            <i class="bi bi-check-circle" style="font-size:2.5rem;color:var(--verde)"></i>
+            <p style="margin:0.6rem 0 0.2rem;font-size:0.9rem;color:var(--verde);font-weight:600">✅ Imagen cargada</p>
+            <p style="font-size:0.75rem;color:var(--gris)">Haz clic para cambiar la foto</p>
+          `;
+          
+          const sizeKB = Math.round(b64.length / 1024);
+          document.getElementById('fotoStatus').textContent = `Tamaño comprimido: ${sizeKB} KB`;
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function comprimirImagen(dataURL, callback) {
+      const img = new Image();
+      img.onload = function() {
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        callback(compressedDataUrl);
+      };
+      img.src = dataURL;
+    }
+
+    function quitarFoto() {
+      comprobanteBase64 = null;
+      document.getElementById('fFoto').value = '';
+      document.getElementById('fotoPreview').style.display = 'none';
+      document.getElementById('fotoBox').classList.remove('has-file');
+      document.getElementById('fotoBox').innerHTML = `
+        <i class="bi bi-cloud-upload" style="font-size:2.5rem;color:var(--ocean);opacity:0.7"></i>
+        <p style="margin:0.6rem 0 0.2rem;font-size:0.9rem;color:var(--gris);font-weight:500">Haz clic para subir foto o arrastra aquí</p>
+        <p style="font-size:0.75rem;color:#aaa">JPG, PNG — máx 5MB — se comprime automáticamente</p>
+      `;
+      document.getElementById('fotoStatus').textContent = '';
+    }
+
+    async function bloquearCabana() {
+      const cabana = document.getElementById('fCabana').value;
+      const llegada = document.getElementById('fLlegada').value;
+      const horaLlegada = document.getElementById('fHoraLlegada').value || '14:00';
+      const salida = document.getElementById('fSalida').value;
+      const horaSalida = document.getElementById('fHoraSalida').value || '12:00';
+      const nombre = document.getElementById('fNombre').value.trim() || 'Reservado';
+      const personas = document.getElementById('fPersonas').value;
+      const deposito = parseInt(document.getElementById('fDeposito').value) || 0;
+      const abono = parseInt(document.getElementById('fAbono').value) || 0;
+      const efectivo = parseInt(document.getElementById('fEfectivo').value) || 0;
+
+      if (!llegada || !salida) { alert('⚠️ Selecciona las fechas.'); return; }
+      if (salida <= llegada) { alert('⚠️ La salida debe ser posterior a la llegada.'); return; }
+
+      showLoading(true);
+      const res = await fetch(API_URL);
+      const data = await res.json() || {};
+      showLoading(false);
+
+      if (!data[cabana]) data[cabana] = [];
+
+      const conflicto = data[cabana].some(r =>
+        (llegada >= r.llegada && llegada < r.salida) ||
+        (salida > r.llegada && salida <= r.salida) ||
+        (llegada <= r.llegada && salida >= r.salida)
+      );
+
+      if (conflicto && !confirm('⚠️ Hay una reserva que se superpone en esas fechas. ¿Agregar de todos modos?')) return;
+
+      const nuevaReserva = {
+        llegada,
+        horaLlegada,
+        salida,
+        horaSalida,
+        nombre,
+        personas,
+        deposito,
+        abono,
+        efectivo,
+        id: Date.now()
+      };
+
+      if (comprobanteBase64) {
+        nuevaReserva.comprobante = comprobanteBase64;
+      }
+
+      data[cabana].push(nuevaReserva);
+      await guardarReservas(data);
+
+      alert(`✅ Reserva guardada: Cabaña N°${cabana} del ${fmt(llegada)} al ${fmt(salida)}`);
+      
+      document.getElementById('fLlegada').value = '';
+      document.getElementById('fHoraLlegada').value = '14:00';
+      document.getElementById('fSalida').value = '';
+      document.getElementById('fHoraSalida').value = '12:00';
+      document.getElementById('fNombre').value = '';
+      document.getElementById('fPersonas').value = '2';
+      document.getElementById('fDeposito').value = '';
+      document.getElementById('fAbono').value = '';
+      document.getElementById('fEfectivo').value = '';
+      quitarFoto();
+      
+      renderPanel(data);
+    }
+
+    async function eliminarReserva(cabana, id) {
+      if (!confirm('¿Eliminar esta reserva?')) return;
+      showLoading(true);
+      const res = await fetch(API_URL);
+      const data = await res.json() || {};
+      showLoading(false);
+
+      if (data[cabana]) {
+        data[cabana] = data[cabana].filter(r => r.id !== id);
+        if (data[cabana].length === 0) delete data[cabana];
+      }
+      await guardarReservas(data);
+      renderPanel(data);
+    }
+
+    async function liberarCabana(cabana) {
+      if (!confirm(`¿Eliminar TODAS las reservas de Cabaña N°${cabana}?`)) return;
+      showLoading(true);
+      const res = await fetch(API_URL);
+      const data = await res.json() || {};
+      showLoading(false);
+      delete data[cabana];
+      await guardarReservas(data);
+      renderPanel(data);
+    }
+
+    function renderPanel(data) {
+      const hoy = new Date().toISOString().split('T')[0];
+      let libres = 0, ocupadas = 0, totalRes = 0;
+      let html = '';
+
+      for (let i = 1; i <= 7; i++) {
+        const reservas = (data[i] || []).filter(r => r.salida >= hoy);
+        const ocupada = reservas.length > 0;
+        if (ocupada) ocupadas++; else libres++;
+        totalRes += reservas.length;
+
+        html += `
+    <div class="cabana-card ${ocupada ? 'ocupada' : ''}">
+      <div class="cabana-header">
+        <div class="cabana-nombre"><i class="bi bi-house-fill" style="color:var(--ocean);margin-right:6px"></i>Cabaña N°${i}</div>
+        <span class="badge ${ocupada ? 'badge-ocupada' : 'badge-libre'}">${ocupada ? '🔴 Ocupada' : '🟢 Disponible'}</span>
+      </div>
+      <div class="cabana-reservas">
+        ${reservas.length === 0
+            ? '<div class="sin-reservas">Sin reservas activas</div>'
+            : reservas.map(r => `
+              <div class="reserva-item">
+                <div style="flex:1">
+                  <div class="reserva-fechas"><i class="bi bi-calendar3"></i> ${fmt(r.llegada)} ${r.horaLlegada ? '⏰'+r.horaLlegada : ''} → ${fmt(r.salida)} ${r.horaSalida ? '⏰'+r.horaSalida : ''}</div>
+                  <div class="reserva-nota"><i class="bi bi-person-fill"></i> ${r.nombre} &nbsp;·&nbsp; <i class="bi bi-people-fill"></i> ${r.personas || '—'} personas</div>
+                  <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+                    ${r.deposito ? `<span style="font-size:.72rem;background:#ebf8ff;color:#2b6cb0;border-radius:5px;padding:2px 7px"><i class="bi bi-bank"></i> Dep: $${r.deposito.toLocaleString('es-CL')}</span>` : ''}
+                    ${r.abono    ? `<span style="font-size:.72rem;background:#f0fff4;color:var(--verde);border-radius:5px;padding:2px 7px"><i class="bi bi-cash"></i> Abono: $${r.abono.toLocaleString('es-CL')}</span>` : ''}
+                    ${r.efectivo ? `<span style="font-size:.72rem;background:#fffbeb;color:#d97706;border-radius:5px;padding:2px 7px"><i class="bi bi-cash-coin"></i> Efect: $${r.efectivo.toLocaleString('es-CL')}</span>` : ''}
+                  </div>
+                  ${r.comprobante ? `<div style="margin-top:6px"><button onclick="verComprobante(${r.id})" style="background:none;border:none;color:var(--ocean);cursor:pointer;font-size:0.75rem;display:flex;align-items:center;gap:4px"><i class="bi bi-paperclip"></i> Ver comprobante</button></div>` : ''}
+                </div>
+                <button class="btn-eliminar" onclick="eliminarReserva(${i}, ${r.id})"><i class="bi bi-trash3"></i></button>
+              </div>`).join('')
+          }
+      </div>
+      ${ocupada ? `<div class="cabana-footer"><button class="btn-liberar" onclick="liberarCabana(${i})"><i class="bi bi-unlock-fill"></i> Liberar todas las fechas</button></div>` : ''}
+    </div>`;
+      }
+
+      document.getElementById('cabanasGrid').innerHTML = html;
+      document.getElementById('countLibres').textContent = libres;
+      document.getElementById('countOcupadas').textContent = ocupadas;
+      document.getElementById('countReservas').textContent = totalRes;
+    }
+
+    function fmt(f) {
+      if (!f) return '';
+      const [y, m, d] = f.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function verComprobante(id) {
+      fetch(API_URL).then(res => res.json()).then(data => {
+        let reserva = null;
+        for (let cab in data) {
+          const encontrada = data[cab].find(r => r.id === id);
+          if (encontrada) {
+            reserva = encontrada;
+            break;
+          }
+        }
+        
+        if (!reserva || !reserva.comprobante) {
+          alert('No hay comprobante disponible');
+          return;
+        }
+
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:10000;padding:1rem;';
+        modal.innerHTML = `
+          <button onclick="this.parentElement.remove()" style="position:absolute;top:1rem;right:1rem;background:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:1.5rem;cursor:pointer">✕</button>
+          <div style="background:#fff;border-radius:12px;overflow:hidden;max-width:90vw;max-height:90vh;">
+            <div style="background:linear-gradient(135deg,var(--ocean),var(--ocean-lt));color:#fff;padding:1rem 1.5rem;">
+              <h3 style="margin:0;font-size:1.1rem">📎 Comprobante</h3>
+              <p style="margin:0.3rem 0 0 0;font-size:0.85rem;opacity:0.9">${reserva.nombre} · ${fmt(reserva.llegada)} → ${fmt(reserva.salida)}</p>
+            </div>
+            <div style="padding:1rem;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
+              <img src="${reserva.comprobante}" style="max-width:100%;max-height:65vh;border-radius:8px;" />
+            </div>
+          </div>
+        `;
+        modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+        document.body.appendChild(modal);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      const fL = document.getElementById('fLlegada');
+      const fS = document.getElementById('fSalida');
+      fL.min = hoy;
+      fS.min = hoy;
+      fL.addEventListener('change', () => {
+        fS.min = fL.value;
+        if (fS.value && fS.value <= fL.value) fS.value = '';
+      });
+    });
+  </script>
+</body>
+
+</html>
