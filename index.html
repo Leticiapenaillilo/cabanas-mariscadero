@@ -408,7 +408,21 @@
       </div>
       <div class="row justify-content-center">
         <div class="col-lg-7">
-          <div class="tabla-precios">
+
+          <div class="precio-tabs" role="tablist">
+            <button type="button" class="precio-tab active" data-tab="verano" onclick="cambiarTabPrecio('verano')">
+              <i class="bi bi-sun-fill"></i> Verano
+            </button>
+            <button type="button" class="precio-tab" data-tab="invierno" onclick="cambiarTabPrecio('invierno')">
+              <i class="bi bi-snow2"></i> Invierno
+            </button>
+            <button type="button" class="precio-tab precio-tab-oferta" data-tab="oferta" onclick="cambiarTabPrecio('oferta')">
+              <i class="bi bi-stars"></i> Oferta
+            </button>
+          </div>
+
+          <!-- TABLA VERANO -->
+          <div class="tabla-precios precio-panel" id="panel-verano">
             <div class="precio-fila precio-fila-header">
               <span>Personas</span>
               <span>Precio por noche</span>
@@ -434,10 +448,62 @@
               <span class="precio-valor">$65.000</span>
             </div>
             <div class="precio-nota">
-              <i class="bi bi-info-circle"></i> Precios referenciales. Pueden variar en temporada alta. Consulta
+              <i class="bi bi-info-circle"></i> Precios referenciales de temporada de verano. Consulta
               disponibilidad por WhatsApp.
             </div>
           </div>
+
+          <!-- TABLA INVIERNO -->
+          <div class="tabla-precios precio-panel" id="panel-invierno" style="display:none">
+            <div class="precio-fila precio-fila-header">
+              <span>Personas</span>
+              <span>Precio por noche</span>
+            </div>
+            <div class="precio-fila">
+              <span><i class="bi bi-people"></i> 2 personas</span>
+              <span class="precio-valor">$40.000</span>
+            </div>
+            <div class="precio-fila">
+              <span><i class="bi bi-people"></i> 3 personas</span>
+              <span class="precio-valor">$45.000</span>
+            </div>
+            <div class="precio-fila">
+              <span><i class="bi bi-people"></i> 4 personas</span>
+              <span class="precio-valor">$50.000</span>
+            </div>
+            <div class="precio-fila">
+              <span><i class="bi bi-people"></i> 5 personas</span>
+              <span class="precio-valor">$55.000</span>
+            </div>
+            <div class="precio-fila precio-fila-max">
+              <span><i class="bi bi-people-fill"></i> 6 personas <span class="badge-max">Máximo</span></span>
+              <span class="precio-valor">$60.000</span>
+            </div>
+            <div class="precio-nota">
+              <i class="bi bi-info-circle"></i> Precios referenciales de temporada de invierno. Consulta
+              disponibilidad por WhatsApp.
+            </div>
+          </div>
+
+          <!-- OFERTA -->
+          <div class="tabla-precios precio-panel" id="panel-oferta" style="display:none">
+            <div class="oferta-card">
+              <span class="badge-oferta"><i class="bi bi-stars"></i> Oferta especial</span>
+              <h3 class="oferta-precio">$60.000<span>total</span></h3>
+              <p class="oferta-desc">2 noches · Pareja (2 personas) · de Lunes a Jueves</p>
+              <ul class="oferta-detalles">
+                <li><i class="bi bi-check-circle-fill"></i> Válido de lunes a jueves</li>
+                <li><i class="bi bi-check-circle-fill"></i> 2 noches de estadía</li>
+                <li><i class="bi bi-check-circle-fill"></i> Hasta 2 personas</li>
+                <li><i class="bi bi-check-circle-fill"></i> Sujeto a disponibilidad</li>
+              </ul>
+            </div>
+            <div class="precio-nota">
+              <i class="bi bi-info-circle"></i> Oferta sujeta a disponibilidad y no acumulable con otras
+              promociones. Consulta por WhatsApp para reservar.
+            </div>
+          </div>
+
           <div class="text-center mt-4">
             <a href="#reserva" class="btn btn-primary-lp">Quiero reservar</a>
           </div>
@@ -445,6 +511,15 @@
       </div>
     </div>
   </section>
+
+  <script>
+    function cambiarTabPrecio(tab) {
+      document.querySelectorAll('.precio-tab').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.precio-tab[data-tab="' + tab + '"]').classList.add('active');
+      document.querySelectorAll('.precio-panel').forEach(panel => panel.style.display = 'none');
+      document.getElementById('panel-' + tab).style.display = 'block';
+    }
+  </script>
 
   
   <section id="servicios" class="section-lp section-verde">
@@ -493,7 +568,7 @@
           <h2 class="section-title">¿No quieres perderte ninguna oferta?</h2>
           <p class="section-sub mb-4">Regístrate y te avisamos por email cuando tengamos precios especiales, fines de
             semana en oferta o temporada baja.</p>
-          <form action="https://formspree.io/f/mqevzrpv" method="POST"
+          <form action="https://formspree.io/f/mlgkzrqe" method="POST"
             class="oferta-form d-flex gap-2 flex-wrap justify-content-center" id="formOfertas">
             <input type="hidden" name="_subject" value="Nueva suscripción a ofertas — Mariscadero" />
             <input type="hidden" name="tipo" value="suscripcion-ofertas" />
@@ -516,7 +591,7 @@
         <p class="section-eyebrow">Contacto y reservas</p>
         <h2 class="section-title">¿Listo para escaparte?</h2>
         <p class="section-sub mb-4">Completa el formulario y te respondemos en menos de 24 horas para confirmar tu reserva.</p>
-        <form action="https://formspree.io/f/mqevzrpv" method="POST" class="form-lp" id="formReserva" novalidate>
+        <form action="https://formspree.io/f/xqeonzvz" method="POST" class="form-lp" id="formReserva" novalidate>
           <input type="hidden" name="_subject" value="Nueva reserva — Cabañas Mariscadero" />
           <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
           <div class="mb-3">
@@ -556,14 +631,22 @@
             </select>
           </div>
           <div class="mb-3">
+            <label class="form-label-lp">Temporada</label>
+            <select name="temporada" class="input-lp" id="selectTemporada" onchange="calcularPrecio()">
+              <option value="verano">Verano</option>
+              <option value="invierno">Invierno</option>
+              <option value="oferta">Oferta (2 noches, pareja, Lun-Jue)</option>
+            </select>
+          </div>
+          <div class="mb-3">
             <label class="form-label-lp">Número de personas</label>
             <select name="personas" class="input-lp" id="selectPersonas" onchange="calcularPrecio()">
               <option value="">Selecciona</option>
-              <option value="2">2 personas — $45.000</option>
-              <option value="3">3 personas — $50.000</option>
-              <option value="4">4 personas — $55.000</option>
-              <option value="5">5 personas — $60.000</option>
-              <option value="6">6 personas — $65.000</option>
+              <option value="2">2 personas</option>
+              <option value="3">3 personas</option>
+              <option value="4">4 personas</option>
+              <option value="5">5 personas</option>
+              <option value="6">6 personas</option>
             </select>
           </div>
           <div class="mb-3" id="precioEstimado" style="display:none">
@@ -945,14 +1028,34 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const precios = { 2: 45000, 3: 50000, 4: 55000, 5: 60000, 6: 65000 };
+    const precios = {
+      verano:   { 2: 45000, 3: 50000, 4: 55000, 5: 60000, 6: 65000 },
+      invierno: { 2: 40000, 3: 45000, 4: 50000, 5: 55000, 6: 60000 }
+    };
     function calcularPrecio() {
-      const sel = document.getElementById('selectPersonas');
+      const selPersonas = document.getElementById('selectPersonas');
+      const selTemporada = document.getElementById('selectTemporada');
       const box = document.getElementById('precioEstimado');
       const txt = document.getElementById('precioTexto');
-      const val = parseInt(sel.value);
-      if (val && precios[val]) {
-        txt.textContent = '$' + precios[val].toLocaleString('es-CL') + ' / noche';
+      const temporada = selTemporada.value;
+      const val = parseInt(selPersonas.value);
+
+      if (temporada === 'oferta') {
+        if (val && val <= 2) {
+          txt.textContent = '$60.000 total por 2 noches (Lun-Jue, pareja)';
+          box.style.display = 'block';
+        } else if (val) {
+          txt.textContent = 'La oferta solo aplica para 2 personas. Selecciona Verano o Invierno.';
+          box.style.display = 'block';
+        } else {
+          box.style.display = 'none';
+        }
+        return;
+      }
+
+      const tabla = precios[temporada] || precios.verano;
+      if (val && tabla[val]) {
+        txt.textContent = '$' + tabla[val].toLocaleString('es-CL') + ' / noche';
         box.style.display = 'block';
       } else {
         box.style.display = 'none';
@@ -1924,13 +2027,23 @@ INFORMACIÓN OFICIAL QUE DEBES USAR PARA RESPONDER:
 - Todas tienen terraza privada de maderaF
 - Se permiten mascotas (pet-friendly) 🐾
 
-💰 PRECIOS POR NOCHE (temporada estándar):
+💰 PRECIOS POR NOCHE — TEMPORADA VERANO:
 - 2 personas: $45.000 CLP
 - 3 personas: $50.000 CLP
 - 4 personas: $55.000 CLP
 - 5 personas: $60.000 CLP
 - 6 personas: $65.000 CLP
-- Los precios pueden variar en temporada alta (verano, festivos)
+
+❄️ PRECIOS POR NOCHE — TEMPORADA INVIERNO:
+- 2 personas: $40.000 CLP
+- 3 personas: $45.000 CLP
+- 4 personas: $50.000 CLP
+- 5 personas: $55.000 CLP
+- 6 personas: $60.000 CLP
+
+⭐ OFERTA ESPECIAL:
+- $60.000 CLP total por 2 noches, de Lunes a Jueves, para pareja (2 personas)
+- Sujeta a disponibilidad, no acumulable con otras promociones
 
 🛎️ SERVICIOS INCLUIDOS:
 - WiFi gratis
